@@ -1,0 +1,129 @@
+---
+- hosts: all
+  become: true
+
+  tasks:
+    - name: Install aptitude
+      apt:
+        name: aptitude
+        state: latest
+        update_cache: true
+
+    - name: Setup passwordless sudo
+      lineinfile:
+        path: /etc/sudoers
+        state: present
+        regexp: '^%sudo'
+        line: '%sudo ALL=(ALL) NOPASSWD: ALL'
+        validate: '/usr/sbin/visudo -cf %s'
+
+    - name: create group
+      ansible.builtin.group:
+        name: docker
+        state: present
+
+    - name: Add Homoney to the docker group
+      ansible.builtin.user:
+        name: homoneyd
+        groups: docker
+        append: true
+
+    - name: Create a new regular user for Adam with sudo privileges
+      user:
+        name: koraba
+        state: present
+        groups: sudo,docker
+        append: true
+        create_home: true
+
+    - name: Create a new regular user for Shoaib with sudo privileges
+      user:
+        name: shoaib
+        state: present
+        groups: sudo,docker
+        append: true
+        create_home: true
+
+    - name: Update apt and install required system packages
+      apt:
+        pkg:
+          - curl
+          - vim
+          - git
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+          - python3-pip
+          - virtualenv
+          - python3-setuptools
+        state: latest
+        update_cache: true
+    - name: Add Docker GPG apt Key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add Docker Repository
+      apt_repository:
+        repo: deb https://download.docker.com/linux/ubuntu focal stable
+        state: present
+
+    - name: Update apt and install docker-ce
+      apt:
+        name: docker-ce
+        state: latest
+        update_cache: true
+
+    - name: Update apt and install docker-compose
+      apt:
+        name: docker-compose
+        state: latest
+        update_cache: true
+
+    - name: Install Docker Module for Python
+      pip:
+        name: docker
+
+    - name: Creating needed Containers folder
+      file:
+        path: /home/homoneyd/Containers
+        state: directory
+        mode: 0755
+
+    - name: Creating subfolders
+      file:
+        path: "{{ item }}"
+        state: directory
+      loop:
+        - /home/homoneyd/Containers/juice-shop
+        - /home/homoneyd/Containers/vapi
+        - /home/homoneyd/Containers/crAPI
+
+    - name: Deploy OWASP Juice Shop Web app
+      docker_container:
+        image: bkimminich/juice-shop
+        name: juice-shop
+        state: started
+        ports:
+          - "3000:3000"
+
+    - name: Grabbing docker-compose file for crAPI
+      uri:
+        url: 'https://raw.githubusercontent.com/OWASP/crAPI/main/deploy/docker/docker-compose.yml'
+        method: GET
+        dest: /home/homoneyd/Containers/crAPI/docker-compose.yml
+      register: result
+
+    - name: Clone a github repository
+      ansible.builtin.git:
+        repo: 'https://github.com/roottusk/vapi.git'
+        dest: /home/homoneyd/Containers/vapi
+        update: true
+
+
+    - name: Deploy crAPI using docker-compose
+      community.docker.docker_compose:
+        project_src: /home/homoneyd/Containers/crAPI
+        files:
+          - docker-compose.yml
