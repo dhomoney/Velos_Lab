@@ -1,0 +1,32 @@
+---
+- name:  Clone a virtual machine from Linux template and customize
+  community.vmware.vmware_guest:
+    hostname: "{{ vcenter_hostname }}"
+    username: "{{ vcenter_username }}"
+    password: "{{ vcenter_password }}"
+    datacenter: "{{ datacenter }}"
+    state: present
+    template: "{{ template }}"
+    name: "{{ vm_name }}"
+    cluster: DC1_C1
+    networks:
+      - name: MGMT Network
+        ip: "{{ vm_mgmt_ip }}"
+        netmask: 255.255.255.0
+        device_type: vmxnet3
+        gateway: 10.255.44.1
+        type: static
+        start_connected: true
+      - name: Server Network
+        ip: "{{ vm_lab_ip }}"
+        netmask: 255.255.255.0
+        device_type: vmxnet3
+    customization:
+      domain: "{{ guest_domain }}"
+      dns_servers:
+        - 10.255.0.1
+      dns_suffix:
+        - wwtpoc.local
+      script_text: |
+        #!/bin/bash
+        touch /tmp/touch-from-playbook
