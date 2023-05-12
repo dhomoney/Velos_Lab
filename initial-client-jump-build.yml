@@ -1,6 +1,6 @@
 ---
 - name: Ubuntu Server Customer Jumphost Initial Config
-  hosts: all
+  hosts: client_jump
   become: true
   vars:
     userpass: "WWTwwt1!"
