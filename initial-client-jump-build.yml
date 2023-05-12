@@ -3,7 +3,7 @@
   hosts: client_jump
   become: true
   vars_files:
-      - ~/Velos_Lab/velos_vault.yml  
+    - velos_vault.yml
 
   tasks:
     - name: Install aptitude
