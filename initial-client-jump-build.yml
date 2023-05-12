@@ -38,7 +38,7 @@
         groups: sudo,docker
         append: true
         create_home: true
-        password: "{{ userpass | password_hash('sha512') }}"
+        password: "{{ default_password }}"
 
     - name: Create a new regular user for <customer> with sudo privileges
       user:
@@ -47,7 +47,7 @@
         groups: sudo,docker
         append: true
         create_home: true
-        password: "{{ userpass | password_hash('sha512') }}"
+        password: "{{ default_password }}"
 
 
     - name: Update apt and install required system packages
