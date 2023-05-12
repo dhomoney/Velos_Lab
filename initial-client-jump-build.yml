@@ -2,8 +2,6 @@
 - name: Ubuntu Server Customer Jumphost Initial Config
   hosts: client_jump
   become: true
-  vars_files:
-    - velos_vault.yml
 
   tasks:
     - name: Install aptitude
