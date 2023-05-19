@@ -108,6 +108,14 @@
         ports:
           - "3000:3000"
 
+    - name: Deploy Hackazon
+      docker_container:
+        image: ianwijawa/hackazon
+        name: hackazon
+        state: started
+        ports:
+          - "80:9080"
+
     - name: Grabbing docker-compose file for crAPI
       uri:
         url: 'https://raw.githubusercontent.com/OWASP/crAPI/main/deploy/docker/docker-compose.yml'
@@ -120,7 +128,6 @@
         repo: 'https://github.com/roottusk/vapi.git'
         dest: /home/homoneyd/Containers/vapi
         update: true
-
 
     - name: Deploy crAPI using docker-compose
       community.docker.docker_compose:
