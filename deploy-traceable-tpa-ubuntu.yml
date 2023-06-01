@@ -1,0 +1,120 @@
+---
+- hosts: traceable
+  become: true
+  nios_provider:
+    host: 192.0.0.2
+    username: <infoblox_username>
+    password: <infoblox_password>
+
+  tasks:
+      - name: Install aptitude
+        apt:
+          name: aptitude
+          state: latest
+          update_cache: true
+      - name: Setup passwordless sudo
+        lineinfile:
+          path: /etc/sudoers
+          state: present
+          regexp: '^%sudo'
+          line: '%sudo ALL=(ALL) NOPASSWD: ALL'
+          validate: '/usr/sbin/visudo -cf %s'
+
+
+      - name: Update apt-get repo and cache
+        apt: update_cache=yes force_apt_get=yes cache_valid_time=3600
+      
+      - name: Add Traceable's repository to Apt
+        apt: 
+
+      - name: Upgrade all apt packages
+        apt: upgrade=dist force_apt_get=yes
+
+      - name: Check if a reboot is needed for Debian and Ubuntu boxes
+        register: reboot_required_file
+        stat: path=/var/run/reboot-required get_md5=no
+
+      - name: Reboot the box if kernel updated
+        reboot:
+          msg: "Reboot initiated by Ansible for kernel updates"
+          connect_timeout: 5
+          reboot_timeout: 300
+          pre_reboot_delay: 0
+          post_reboot_delay: 30
+          test_command: uptime
+        when: reboot_required_file.stat.exists
+
+      - name: Create a new regular user for Adam with sudo privileges
+        user:
+          name: koraba
+          state: present
+          groups: sudo
+          append: true
+          create_home: true
+
+      - name: Create a new regular user for Shoaib with sudo privileges
+        user:
+          name: shoaib
+          state: present
+          groups: sudo
+          append: true
+          create_home: true
+
+      - name: Update apt and install required system packages
+        apt:
+          pkg:
+            - python3
+            - gpg
+            - python3-apt
+            - curl
+            - vim
+            - apt-transport-https
+            - ca-certificates
+            - python3-pip
+            - python3-setuptools
+          state: latest
+          update_cache: true
+      
+      - name: Add Traceable sources
+        lineinfile:
+          path: /etc/apt/sources.list.d/traceable.list
+          state: present
+          regexp: '^%deb'
+          line: 'deb [trusted=yes] https://packages.traceable.ai/ubuntu/ focal main'
+          validate: '/usr/sbin/visudo -cf %s'
+
+      - name: Add Traceable Repository
+        apt_repository:
+          repo: deb https://packages.traceable.ai/ubuntu/ focal main
+          state: present
+      
+      - name: Update Apt and install Traceable
+        apt:
+          pkg:
+            - traceable
+          state: latest
+          update_cache: true
+
+      - name: Just force systemd to reread configs (2.4 and above)
+        ansible.builtin.systemd:
+          daemon_reload: true
+
+      - name: Add Traceable token and verify
+        lineinfile:
+          path: /etc/traceable/agent/token
+          state: present
+          line: {{ traceable_token }}
+          validate: '/usr/sbin/visudo -cf %s'   
+      
+      - name: Update variable for Traceable daemon and set it to start and enabled
+        ansible.builtin.systemd:
+          name: traceable
+          state: started
+          enabled: true
+        environment:
+          TA_ENVIRONMENT: "<expected environment>"
+      
+      - name: Make sure a service unit is running
+        ansible.builtin.systemd:
+          state: started
+          name: traceable
