@@ -84,6 +84,7 @@
         apt_repository:
           repo: deb https://packages.traceable.ai/ubuntu/ focal main
           state: present
+          create: true
       
       - name: Update Apt and install Traceable
         apt:
