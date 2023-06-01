@@ -74,6 +74,7 @@
       
       - name: Add Traceable sources
         lineinfile:
+          create: true
           path: /etc/apt/sources.list.d/traceable.list
           state: present
           regexp: '^%deb'
@@ -84,7 +85,6 @@
         apt_repository:
           repo: deb https://packages.traceable.ai/ubuntu/ focal main
           state: present
-          create: true
       
       - name: Update Apt and install Traceable
         apt:
