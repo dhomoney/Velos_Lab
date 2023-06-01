@@ -109,7 +109,7 @@
           state: started
           enabled: true
         environment:
-          TA_ENVIRONMENT: {{ traceable_environment }}
+          TA_ENVIRONMENT: '{{ traceable_environment }}'
       
       - name: Make sure a service unit is running
         ansible.builtin.systemd:
