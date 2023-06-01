@@ -80,11 +80,6 @@
           regexp: '^%deb'
           line: 'deb [trusted=yes] https://packages.traceable.ai/ubuntu/ focal main'
 
-      - name: Add Traceable Repository
-        apt_repository:
-          repo: deb https://packages.traceable.ai/ubuntu/ focal main
-          state: present
-      
       - name: Update Apt and install Traceable
         apt:
           pkg:
