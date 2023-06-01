@@ -77,8 +77,7 @@
           create: true
           path: /etc/apt/sources.list.d/traceable.list
           state: present
-          regexp: '^%deb'
-          line: 'deb [trusted=yes] https://packages.traceable.ai/ubuntu/ focal main'
+          line: "deb [trusted=yes] https://packages.traceable.ai/ubuntu/ focal main"
 
       - name: Update Apt and install Traceable
         apt:
