@@ -79,7 +79,6 @@
           state: present
           regexp: '^%deb'
           line: 'deb [trusted=yes] https://packages.traceable.ai/ubuntu/ focal main'
-          validate: '/usr/sbin/visudo -cf %s'
 
       - name: Add Traceable Repository
         apt_repository:
