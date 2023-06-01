@@ -11,7 +11,7 @@
       validate_certs: no
       server_port: 443
 
-   tasks:
+  tasks:
 
     - name: Create vAPI pool
       bigip_pool:
