@@ -14,3 +14,9 @@ Future Goals are to automatically deploay the Ubuntu Servers, do base config to 
 05/09/23 - UPDATE
 
 Created playbook to automatically update the ubuntu servers and reboot them if there has been a kernel update. 
+
+06/01/23 - UPDATE
+
+Laudato Cor Sacratissimum!
+
+Much has been update. The initial build has added in the Hackazon docker container to add additional testing options. Also created a playbook to install Traceable.ai's TPA on Ubuntu 22.04 and an client jump host build out. 
