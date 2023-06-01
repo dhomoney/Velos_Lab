@@ -1,10 +1,6 @@
 ---
 - hosts: traceable
   become: true
-  nios_provider:
-    host: 192.0.0.2
-    username: <infoblox_username>
-    password: <infoblox_password>
 
   tasks:
       - name: Install aptitude
@@ -112,7 +108,7 @@
           state: started
           enabled: true
         environment:
-          TA_ENVIRONMENT: "<expected environment>"
+          TA_ENVIRONMENT: {{ traceable_environment }}
       
       - name: Make sure a service unit is running
         ansible.builtin.systemd:
