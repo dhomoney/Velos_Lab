@@ -95,7 +95,6 @@
           path: /etc/traceable/agent/token
           state: present
           line: '{{ traceable_token }}'
-          validate: '/usr/sbin/visudo -cf %s'   
       
       - name: Update variable for Traceable daemon and set it to start and enabled
         ansible.builtin.systemd:
