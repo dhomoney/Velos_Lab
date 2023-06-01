@@ -1,0 +1,190 @@
+---
+- name: Create a cBIP configuration for API Lab
+  hosts: bigip
+  connection: local
+
+  vars:
+    provider:
+      password: {{ cbip_password }}
+      server: {{ cbip_ip }}
+      user: {{ cbip_user }}
+      validate_certs: no
+      server_port: 443
+
+   tasks:
+
+    - name: Create vAPI pool
+      bigip_pool:
+        state: present
+        monitor_type: single
+        monitors:
+        - http
+        provider: "{{ provider }}"
+        lb_method: round-robin
+        name: vapi-pool
+      delegate_to: localhost
+    
+    - name: Create crAPI pool
+      bigip_pool:
+        state: present
+        monitor_type: single
+        monitors:
+        - http
+        provider: "{{ provider }}"
+        lb_method: round-robin
+        name: crapi-pool
+      delegate_to: localhost
+    
+    - name: Create JuiceShop pool
+      bigip_pool:
+        state: present
+        monitor_type: single
+        monitors:
+        - http
+        provider: "{{ provider }}"
+        lb_method: round-robin
+        name: juiceshop-pool
+      delegate_to: localhost
+    
+    - name: Create Hackazon pool
+      bigip_pool:
+        state: present
+        monitor_type: single
+        monitors:
+        - http
+        provider: "{{ provider }}"
+        lb_method: round-robin
+        name: hackazon-pool
+      delegate_to: localhost
+
+    - name: Add members to vAPI pool
+      bigip_pool_member:
+        provider: "{{ provider }}"
+        description: "webserver {{ item.name }}"
+        host: "{{ item.host }}"
+        name: "{{ item.name }}"
+        pool: vapi-pool
+        port: 80
+      with_items:
+        - host: 10.56.20.11
+          name: ubuntusrv01
+        - host: 10.56.20.12
+          name: ubuntusrv02
+        - host: 10.56.20.13
+          name: ubuntusrv03
+      delegate_to: localhost
+
+    - name: Add members to crAPI pool
+      bigip_pool_member:
+        provider: "{{ provider }}"
+        description: "webserver {{ item.name }}"
+        host: "{{ item.host }}"
+        name: "{{ item.name }}"
+        pool: crapi-pool
+        port: 8888
+      with_items:
+        - host: 10.56.20.11
+          name: ubuntusrv01
+        - host: 10.56.20.12
+          name: ubuntusrv02
+        - host: 10.56.20.13
+          name: ubuntusrv03
+      delegate_to: localhost
+
+    - name: Add members to Hackazon pool
+      bigip_pool_member:
+        provider: "{{ provider }}"
+        description: "webserver {{ item.name }}"
+        host: "{{ item.host }}"
+        name: "{{ item.name }}"
+        pool: hackazon-pool
+        port: 9080
+      with_items:
+        - host: 10.56.20.11
+          name: ubuntusrv01
+        - host: 10.56.20.12
+          name: ubuntusrv02
+        - host: 10.56.20.13
+          name: ubuntusrv03
+      delegate_to: localhost
+
+    - name: Add members to JuiceShop pool
+      bigip_pool_member:
+        provider: "{{ provider }}"
+        description: "webserver {{ item.name }}"
+        host: "{{ item.host }}"
+        name: "{{ item.name }}"
+        pool: juiceshop-pool
+        port: 3000
+      with_items:
+        - host: 10.56.20.11
+          name: ubuntusrv01
+        - host: 10.56.20.12
+          name: ubuntusrv02
+        - host: 10.56.20.13
+          name: ubuntusrv03
+      delegate_to: localhost
+
+    - name: Create the vAPI VIP
+      bigip_virtual_server:
+        provider: "{{ provider }}"
+        description: VIP for vAPI
+        destination: 10.56.10.45
+        name: vapi-vip
+        pool: 
+        port: 80
+        clone_pools:
+        - pool_name: traceable-tpa-pool
+          context: clientside
+        profiles:
+          - mptcp-mobile-optimized
+          - http
+      delegate_to: localhost
+
+    - name: Create the crAPI VIP
+      bigip_virtual_server:
+        provider: "{{ provider }}"
+        description: VIP for crAPI
+        destination: 10.56.10.45
+        name: crapi-vip
+        pool: crapi-pool
+        port: 8888
+        clone_pools:
+        - pool_name: traceable-tpa-pool
+          context: clientside         
+        profiles:
+          - mptcp-mobile-optimized
+          - http
+      delegate_to: localhost
+
+    - name: Create the Hackazon VIP
+      bigip_virtual_server:
+        provider: "{{ provider }}"
+        description: VIP for Hackazon
+        destination: 10.56.10.45
+        name: hackazon-vip
+        pool: hackazon-pool
+        port: 9080
+        clone_pools:
+        - pool_name: traceable-tpa-pool
+          context: clientside
+        profiles:
+          - mptcp-mobile-optimized
+          - http
+      delegate_to: localhost
+
+    - name: Create the JuiceShop VIP
+      bigip_virtual_server:
+        provider: "{{ provider }}"
+        description: VIP for JuiceShop
+        destination: 10.56.10.45
+        name: juiceshop-vip
+        pool: juiceshop-pool
+        port: 3000
+        clone_pools:
+        - pool_name: traceable-tpa-pool
+          context: clientside
+        profiles:
+          - mptcp-mobile-optimized
+          - http
+      delegate_to: localhost

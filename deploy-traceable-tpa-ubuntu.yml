@@ -97,12 +97,11 @@
           line: '{{ traceable_token }}'
       
       - name: Update variable for Traceable daemon and set it to start and enabled
-        ansible.builtin.systemd:
-          name: traceable
-          state: started
-          enabled: true
-        environment:
-          TA_ENVIRONMENT: '{{ traceable_environment }}'
+        ansible.builtin.blockinfile:
+          path: /etc/systemd/system/traceable.service.d/environment.conf
+          block: |
+            [Service]
+            Environment="TA_ENVIRONMENT={{ traceable_environment }}"
       
       - name: Make sure a service unit is running
         ansible.builtin.systemd:
