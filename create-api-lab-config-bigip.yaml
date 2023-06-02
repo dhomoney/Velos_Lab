@@ -152,7 +152,8 @@
         description: VIP for vAPI
         destination: 10.56.10.45
         name: vapi-vip
-        pool: 
+        pool: vapi-pool
+        snat: Automap
         port: 80
         clone_pools:
         - pool_name: traceable-tpa-pool
@@ -170,6 +171,7 @@
         name: crapi-vip
         pool: crapi-pool
         port: 8888
+        snat: Automap
         clone_pools:
         - pool_name: traceable-tpa-pool
           context: serverside         
@@ -186,6 +188,7 @@
         name: hackazon-vip
         pool: hackazon-pool
         port: 9080
+        snat: Automap
         clone_pools:
         - pool_name: traceable-tpa-pool
           context: serverside
@@ -202,6 +205,7 @@
         name: juiceshop-vip
         pool: juiceshop-pool
         port: 3000
+        snat: Automap
         clone_pools:
         - pool_name: traceable-tpa-pool
           context: serverside
