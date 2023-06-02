@@ -6,7 +6,7 @@
   vars:
     provider:
       password: "{{ cbip_password }}"
-      server: "{{ cbip_ip }}"
+      server: 10.255.44.103
       user: "{{ cbip_user }}"
       validate_certs: no
       server_port: 443
