@@ -1,5 +1,5 @@
 ---
-- name: Create a cBIP configuration for API Lab
+- name: Reset a cBIP configuration for API Lab
   hosts: bigip
   connection: local
 
@@ -10,7 +10,7 @@
       user: "{{ cbip_user }}"
       validate_certs: no
       server_port: 443 
-      bigip_hostname: "cbip-api-lab-01.wwtatc.local"
+    bigip_hostname: "cbip-api-lab-01.wwtatc.local"
 
   tasks:
     - name: Reset to base configuration
@@ -21,19 +21,23 @@
       bigip_hostname:
           hostname: "{{ bigip_hostname }}"
 
-    - name: Renew license
-      bigip_license:
-          key: " {{ bigip_license }}"
-          state: "latest"
+    - name: License a BIG-IP
+      bigip_device_license:
+        license_key: XXXXX-XXXXX-XXXXX-XXXXX-XXXXXXX
+        accept_eula: yes
+        state: "latest"
+        provider: "{{ provider }}"
 
     - name: Pause 1 minute to allow the license to reload or tmsh might not be up
       pause:
            minutes: 1
+
     - name: Configure vlan internal
       bigip_vlan:
           name: "internal"
           tag: "4093"
           untagged_interfaces: 1.1
+
     - name: Configure vlan external
       bigip_vlan:
           name: "external"
@@ -47,12 +51,14 @@
           name: "external_self"
           netmask: "255.255.255.0"
           vlan: "external"
+
     - name: Create internal self
       bigip_selfip:
           address: "10.56.20.50"
           name: "internal_self"
           netmask: "255.255.255.0"
           vlan: "internal"
+          
     - name: Mark setup as having been run so it doesn't display that on login
       bigip_command:
           commands: modify sys db setup.run value false
