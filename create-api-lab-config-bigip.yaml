@@ -9,7 +9,7 @@
       server: 10.255.44.103
       user: "{{ cbip_user }}"
       validate_certs: no
-      server_port: 443
+      server_port: 443 
 
   tasks:
 
@@ -74,11 +74,11 @@
         pool: vapi-pool
         port: 80
       with_items:
-        - host: 10.56.20.11
+        - host: 10.56.20.111
           name: ubuntusrv01
-        - host: 10.56.20.12
+        - host: 10.56.20.112
           name: ubuntusrv02
-        - host: 10.56.20.13
+        - host: 10.56.20.113
           name: ubuntusrv03
       delegate_to: localhost
 
@@ -91,11 +91,11 @@
         pool: crapi-pool
         port: 8888
       with_items:
-        - host: 10.56.20.11
+        - host: 10.56.20.111
           name: ubuntusrv01
-        - host: 10.56.20.12
+        - host: 10.56.20.112
           name: ubuntusrv02
-        - host: 10.56.20.13
+        - host: 10.56.20.113
           name: ubuntusrv03
       delegate_to: localhost
 
@@ -108,11 +108,11 @@
         pool: hackazon-pool
         port: 9080
       with_items:
-        - host: 10.56.20.11
+        - host: 10.56.20.111
           name: ubuntusrv01
-        - host: 10.56.20.12
+        - host: 10.56.20.112
           name: ubuntusrv02
-        - host: 10.56.20.13
+        - host: 10.56.20.113
           name: ubuntusrv03
       delegate_to: localhost
 
@@ -125,11 +125,11 @@
         pool: juiceshop-pool
         port: 3000
       with_items:
-        - host: 10.56.20.11
+        - host: 10.56.20.111
           name: ubuntusrv01
-        - host: 10.56.20.12
+        - host: 10.56.20.112
           name: ubuntusrv02
-        - host: 10.56.20.13
+        - host: 10.56.20.113
           name: ubuntusrv03
       delegate_to: localhost
 
