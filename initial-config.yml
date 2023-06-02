@@ -110,7 +110,7 @@
 
     - name: Deploy Hackazon
       docker_container:
-        image: ianwijawa/hackazon
+        image: ianwijaya/hackazon:latest
         name: hackazon
         state: started
         ports:
