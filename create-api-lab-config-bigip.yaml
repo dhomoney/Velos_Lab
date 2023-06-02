@@ -57,6 +57,14 @@
         name: hackazon-pool
       delegate_to: localhost
 
+    - name: Create Traceable TPA pool
+      bigip_pool:
+        state: present
+        provider: "{{ provider }}"
+        lb_method: round-robin
+        name: traceable-tpa-pool
+      delegate_to: localhost
+
     - name: Add members to vAPI pool
       bigip_pool_member:
         provider: "{{ provider }}"
@@ -125,6 +133,19 @@
           name: ubuntusrv03
       delegate_to: localhost
 
+    - name: Add members to Traceable TPA pool
+      bigip_pool_member:
+        provider: "{{ provider }}"
+        description: "Traceable TPA {{ item.name }}"
+        host: "{{ item.host }}"
+        name: "{{ item.name }}"
+        pool: traceable-tpa-pool
+        port: 0
+      with_items:
+        - host: 10.56.20.128
+          name: traceable-tpa-01
+      delegate_to: localhost
+
     - name: Create the vAPI VIP
       bigip_virtual_server:
         provider: "{{ provider }}"
@@ -135,7 +156,7 @@
         port: 80
         clone_pools:
         - pool_name: traceable-tpa-pool
-          context: clientside
+          context: serverside
         profiles:
           - mptcp-mobile-optimized
           - http
@@ -151,7 +172,7 @@
         port: 8888
         clone_pools:
         - pool_name: traceable-tpa-pool
-          context: clientside         
+          context: serverside         
         profiles:
           - mptcp-mobile-optimized
           - http
@@ -167,7 +188,7 @@
         port: 9080
         clone_pools:
         - pool_name: traceable-tpa-pool
-          context: clientside
+          context: serverside
         profiles:
           - mptcp-mobile-optimized
           - http
@@ -183,7 +204,7 @@
         port: 3000
         clone_pools:
         - pool_name: traceable-tpa-pool
-          context: clientside
+          context: serverside
         profiles:
           - mptcp-mobile-optimized
           - http
