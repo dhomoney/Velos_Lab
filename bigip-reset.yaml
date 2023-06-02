@@ -16,10 +16,15 @@
     - name: Reset to base configuration
       bigip_config:
           reset: yes
+          save: yes
+          provider: "{{provider}}"
+      delegate_to: localhost
 
     - name: Set the bigip-hostname
       bigip_hostname:
           hostname: "{{ bigip_hostname }}"
+          provider: "{{provider}}"
+      delegate_to: localhost
 
     - name: License a BIG-IP
       bigip_device_license:
@@ -27,6 +32,7 @@
         accept_eula: yes
         state: "latest"
         provider: "{{ provider }}"
+      delegate_to: localhost
 
     - name: Pause 1 minute to allow the license to reload or tmsh might not be up
       pause:
@@ -37,12 +43,16 @@
           name: "internal"
           tag: "4093"
           untagged_interfaces: 1.1
+          provider: "{{provider}}"
+      delegate_to: localhost
 
     - name: Configure vlan external
       bigip_vlan:
           name: "external"
           tag: "4094"
           untagged_interfaces: 1.2
+          provider: "{{provider}}"
+      delegate_to: localhost
 
     #create self IP's
     - name: Create external self
@@ -51,6 +61,8 @@
           name: "external_self"
           netmask: "255.255.255.0"
           vlan: "external"
+          provider: "{{provider}}"
+      delegate_to: localhost
 
     - name: Create internal self
       bigip_selfip:
@@ -58,16 +70,45 @@
           name: "internal_self"
           netmask: "255.255.255.0"
           vlan: "internal"
-          
+          provider: "{{provider}}"
+      delegate_to: localhost
+
     - name: Mark setup as having been run so it doesn't display that on login
       bigip_command:
           commands: modify sys db setup.run value false
+          provider: "{{provider}}"
+      delegate_to: localhost
 
     #create users
+    - name: Add the user koraba as admin
+      bigip_user:
+        username_credential: koraba
+        password_credential: "{{cbip_password}}"
+        full_name: Adam Korab
+        partition_access:
+          - all:admin
+        update_password: always
+        shell: tmsh
+        state: present
+        provider: "{{provider}}"
+      delegate_to: localhost
 
-
+    - name: Add the user shoaib as admin
+      bigip_user:
+        username_credential: shoaib
+        password_credential: "{{cbip_password}}"
+        full_name: Shoaib Mohammad Shahapuri
+        partition_access:
+          - all:admin
+        update_password: always
+        shell: tmsh
+        state: present
+        provider: "{{provider}}"
+      delegate_to: localhost
 
     #save changes to config
     - name: Save config to file
       bigip_config:
           save: yes
+          provider: "{{provider}}"
+      delegate_to: localhost
