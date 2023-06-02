@@ -28,7 +28,7 @@
 
     - name: License a BIG-IP
       bigip_device_license:
-        license_key: XXXXX-XXXXX-XXXXX-XXXXX-XXXXXXX
+        license_key: "{{bigip_license}}"
         accept_eula: yes
         state: "latest"
         provider: "{{ provider }}"
