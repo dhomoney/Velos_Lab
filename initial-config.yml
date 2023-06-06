@@ -114,14 +114,14 @@
         name: hackazon
         state: started
         ports:
-          - "80:9080"
+          - "9080:80"
 
     - name: Grabbing docker-compose file for crAPI
       uri:
-        url: 'https://raw.githubusercontent.com/OWASP/crAPI/main/deploy/docker/docker-compose.yml'
+        url: 'https://github.com/OWASP/crAPI/blob/main/deploy/docker/docker-compose.yml'
         method: GET
         dest: /home/homoneyd/Containers/crAPI/docker-compose.yml
-      register: result
+      register: result103
 
     - name: Clone a github repository
       ansible.builtin.git:
