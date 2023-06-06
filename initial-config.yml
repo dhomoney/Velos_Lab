@@ -143,3 +143,16 @@
         project_src: /home/homoneyd/Containers/crAPI
         files:
           - docker-compose.yml
+
+    - name: Grabbing modified docker-compose file for vAPI
+      uri:
+        url: 'https://raw.githubusercontent.com/dhomoney/Velos_Lab/main/Docker/vAPI/docker-compose.yml'
+        method: GET
+        dest: /home/homoneyd/Containers/vapi/docker-compose.yml
+      register: result103
+
+    - name: Deploy vAPI using docker-compose
+      community.docker.docker_compose:
+        project_src: /home/homoneyd/Containers/vapi
+        files:
+          - docker-compose.yml
