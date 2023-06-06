@@ -138,11 +138,21 @@
         dest: /home/homoneyd/Containers/vapi
         update: true
 
+    - name: Tear down existing services crAPI
+      community.docker.docker_compose:
+        project_src: /home/homoneyd/Containers/crAPI
+        state: absent
+
     - name: Deploy crAPI using docker-compose
       community.docker.docker_compose:
         project_src: /home/homoneyd/Containers/crAPI
         files:
           - docker-compose.yml
+
+    - name: Tear down existing services vAPI
+      community.docker.docker_compose:
+        project_src: /home/homoneyd/Containers/vapi
+        state: absent
 
     - name: Grabbing modified docker-compose file for vAPI
       uri:
