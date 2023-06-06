@@ -118,7 +118,7 @@
 
     - name: Grabbing modified docker-compose file for crAPI
       uri:
-        url: 'https://github.com/dhomoney/Velos_Lab/blob/00243a00c92282561dde194308243b653666ecaa/Docker/crAPI/docker-compose.yml'
+        url: 'https://raw.githubusercontent.com/dhomoney/Velos_Lab/main/Docker/crAPI/docker-compose.yml'
         method: GET
         dest: /home/homoneyd/Containers/crAPI/docker-compose.yml
       register: result103
