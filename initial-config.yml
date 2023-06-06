@@ -115,13 +115,21 @@
         state: started
         ports:
           - "9080:80"
+# Will be added back later when playbook is updated to automatically modify the file.
+#    - name: Grabbing docker-compose file for crAPI
+#      uri:
+#        url: 'https://github.com/OWASP/crAPI/blob/main/deploy/docker/docker-compose.yml'
+#        method: GET
+#        dest: /home/homoneyd/Containers/crAPI/docker-compose.yml
+#      register: result103
 
-    - name: Grabbing docker-compose file for crAPI
-      uri:
-        url: 'https://github.com/OWASP/crAPI/blob/main/deploy/docker/docker-compose.yml'
-        method: GET
+    - name: Copy Updated docker compose file to proper folder
+      copy:
+        src: ~/Velos_Lab/Docker/crAPI/docker_compose.yml
         dest: /home/homoneyd/Containers/crAPI/docker-compose.yml
-      register: result103
+        owner: homoneyd
+        group: docker        
+        mode: 0774
 
     - name: Clone a github repository
       ansible.builtin.git:
