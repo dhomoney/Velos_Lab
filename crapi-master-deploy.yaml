@@ -1,5 +1,0 @@
----
-- hosts: localhost
-- name: Deploy crAPI Servers from scratch.
-  vars_files: /home/david/Velos_Lab/deploy/ubuntu-autoinstall/crapi_server_build_variables.yml
-- import_playbook: /home/david/Velos_Lab/deploy/ubuntu-autoinstall/deploy-crapi-servers.yml
