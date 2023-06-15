@@ -16,7 +16,7 @@
       url: https://artifacts.neosec.com/installer/node-installer
       method: GET
       dest: /tmp/neosec/installer
-    register: result-installer
+    register: results
 
   - name: Change permissions to allow executions of neosec installer
     ansible.builtin.file:
