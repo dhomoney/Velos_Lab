@@ -18,4 +18,4 @@
       mode: '0744'
 
   - name: Run NeoSec installer
-    ansible.builtin.command: "installer install yum -username {{ neosec_user|quote }} -password {{ neosec_password|quote }} -source-id {{ neosec_source_id|quote }} -collector-name {{ neosec_collector_name|quote }}"
+    ansible.builtin.command: "/tmp/neosec/installer install yum -username {{ neosec_user|quote }} -password {{ neosec_password|quote }} -source-id {{ neosec_source_id|quote }} -collector-name {{ neosec_collector_name|quote }}"
