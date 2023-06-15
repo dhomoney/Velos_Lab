@@ -14,9 +14,8 @@
   - name: Download foo.conf
     ansible.builtin.get_url:
       url: https://artifacts.neosec.com/installer/node-installer
-      dest: /tmp/neosec/foo.conf
+      dest: /tmp/neosec/installer
       mode: '0744'
 
   - name: Run NeoSec installer
-    shell: |
-      "installer install yum -username {{ neosec_username }} -password {{ neosec_password }} -source-id {{ neosec_source_id }} -collector-name {{ neosec_collector_name }}"
+    ansible.builtin.command: "installer install yum -username {{ neosec_username }} -password {{ neosec_password }} -source-id {{ neosec_source_id }} -collector-name {{ neosec_collector_name }}"
