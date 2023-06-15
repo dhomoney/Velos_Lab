@@ -59,68 +59,64 @@
           - python3-setuptools
         state: latest
         update_cache: true
-    - name: Add Docker GPG apt Key
-      apt_key:
-        url: https://download.docker.com/linux/ubuntu/gpg
-        state: present
-
-    - name: Add Docker Repository
-      apt_repository:
-        repo: deb https://download.docker.com/linux/ubuntu focal stable
-        state: present
-
-    - name: Update apt and install docker-ce
-      apt:
-        name: docker-ce
-        state: latest
-        update_cache: true
-
-    - name: Update apt and install docker-compose
-      apt:
-        name: docker-compose
-        state: latest
-        update_cache: true
-
-    - name: Install Docker Module for Python
-      pip:
-        name: docker
-
-    - name: Creating needed Containers folder
-      file:
-        path: /home/homoneyd/Containers
-        state: directory
+    
+    - name: Get latest stable version number for kubectl
+      ansible.builtin.uri:
+        url: "https://storage.googleapis.com/kubernetes-release/stable.txt"
+        return_content: yes
+      register: stable_version
+    
+    - name: Download latest stable kubectl
+      ansible.builtin.get_url:
+        url: "https://storage.googleapis.com/kubernetes-release/release/{{ stable_version }}"
+        dest: /usr/local/bin/kubectl
         mode: 0755
 
-    - name: Creating subfolders
-      file:
-        path: "{{ item }}"
+    - name: Install microk8s snap
+      community.general.snap:
+        name: microk8s
+        classic: true
+        state: present
+
+    - name: "Add current user [{{ ansible_env.SUDO_USER }}] into microk8s group"
+      ansible.builtin.user:
+        name: "{{ ansible_env.SUDO_USER }}"
+        groups: microk8s
+        append: yes
+
+    - name: Reset SSH
+      meta: reset_connection
+
+    - name: Enable microk8s add-ons
+      shell: microk8s enable dns dashboard storage ingress helm3 rbac
+      become_user: "{{ ansible_env.SUDO_USER }}"
+
+    - name: Configure host kubectl (no need to run microk8s kubectl)
+      ansible.builtin.file:
+        path: .kube
         state: directory
-      loop:
-        - /home/homoneyd/Containers/crAPI
+      become_user: "{{ ansible_env.SUDO_USER }}"
 
-    - name: Grabbing modified docker-compose file for crAPI
-      uri:
-        url: 'https://raw.githubusercontent.com/OWASP/crAPI/develop/deploy/docker/docker-compose.yml'
-        method: GET
-        dest: /home/homoneyd/Containers/crAPI/docker-compose.yml
-      register: result103
+    - name: Configure kube config for current user
+      shell: |
+        cd .kube && microk8s config > config
+        chmod 600 config
+      become_user: "{{ ansible_env.SUDO_USER }}"
 
-#    - name: Copy updated docker compose file to proper folder
-#      copy:
-#        src: /home/david/Velos_Lab/Docker/crAPI/docker_compose.yml
-#        dest: /home/homoneyd/Containers/crAPI/docker-compose.yml
-#        owner: homoneyd
-#        group: docker        
-#        mode: 0774
-#      delegate_to: localhost
-
-    - name: Tear down existing services crAPI
-      community.docker.docker_compose:
-        project_src: /home/homoneyd/Containers/crAPI
-        state: absent
-
-    - name: Deploy crAPI using docker-compose
-      community.docker.docker_compose:
-        project_src: /home/homoneyd/Containers/crAPI
-        files:
-          - docker-compose.yml
+    - name: Setup auto compete for kubectl in bash
+      ansible.builtin.lineinfile:
+        path: .bashrc
+        regexp: '^source <\(kubectl completion bash'
+        line: "source <(kubectl completion bash)"
+        state: present
+    
+    - name: Install Helm binary
+      ansible.builtin.unarchive:
+        src: https://get.helm.sh/helm-v3.12.1-linux-386.tar.gz
+        remote_src: yes
+        dest: /tmp
+        
+    - name: Move helm to desired destination
+      shell: |
+        mv /tmp/linux-amd64/helm /usr/local/bin/helm
+        rm -rf /tmp/linux-amd64

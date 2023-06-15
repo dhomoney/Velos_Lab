@@ -1,0 +1,28 @@
+---
+- hosts: centos
+  become: true
+
+  tasks:
+
+  - name: Creating subfolders
+    file:
+      path: "{{ item }}"
+      state: directory
+    loop:
+      - /tmp/neosec
+
+  - name: Grabbing NeoSec node installer
+    uri:
+      url: https://artifacts.neosec.com/installer/node-installer
+      method: GET
+      dest: /tmp/neosec/installer
+    register: result-installer
+
+  - name: Change permissions to allow executions of neosec installer
+    ansible.builtin.file:
+      path: /tmp/installer
+      mode: '0744'
+
+  - name: Run NeoSec installer
+    shell: |
+      "installer install yum -username {{ neosec_username }} -password {{ neosec_password }} -source-id {{ neosec_source_id }} -collector-name {{ neosec_collector_name }}"
