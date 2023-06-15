@@ -11,7 +11,7 @@
     loop:
       - /tmp/neosec
 
-  - name: Download foo.conf
+  - name: Download NeoSec installer
     ansible.builtin.get_url:
       url: https://artifacts.neosec.com/installer/node-installer
       dest: /tmp/neosec/installer
