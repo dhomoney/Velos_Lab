@@ -11,16 +11,10 @@
     loop:
       - /tmp/neosec
 
-  - name: Grabbing NeoSec node installer
-    uri:
+  - name: Download foo.conf
+    ansible.builtin.get_url:
       url: https://artifacts.neosec.com/installer/node-installer
-      method: GET
-      dest: /tmp/neosec/installer
-    register: result103
-
-  - name: Change permissions to allow executions of neosec installer
-    ansible.builtin.file:
-      path: /tmp/installer
+      dest: /tmp/neosec/foo.conf
       mode: '0744'
 
   - name: Run NeoSec installer
