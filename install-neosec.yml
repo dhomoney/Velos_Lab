@@ -46,4 +46,7 @@
   - name: Verify Status of Node
     ansible.builtin.command: "/usr/sbin/neosec-node-manager neotok status --api-key {{ neosec_password|quote }}"
     register: statusoutput
-    
+
+  - name: Print node status
+    ansible.builtin.debug:
+      var: statusoutput
