@@ -27,9 +27,12 @@
     ansible.builtin.command: "/usr/sbin/neosec-node-manager neotok create-enc-conf --gen-master-key --output ./enc.conf"
     args:
       chdir: /home/homoneyd/neosec
+      creates: /home/homoneyd/neosec/enc.conf
 
   - name: Move master key
-    ansible.builtin.command: "mv /home/homoneyd/neosec/master.key /etc/neosec-node-manager/master.key"
+    ansible.builtin.file: "mv /home/homoneyd/neosec/master.key /etc/neosec-node-manager/master.key"
+    args:
+      creates: /etc/neosec-node-manager/master.key
 
   - name: Change owner and permisions on master key
     ansible.builtin.file:
