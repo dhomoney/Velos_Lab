@@ -10,6 +10,7 @@
       state: directory
     loop:
       - /tmp/neosec
+      - /home/homoneyd/neosec
 
   - name: Download NeoSec installer
     ansible.builtin.get_url:
@@ -19,3 +20,30 @@
 
   - name: Run NeoSec installer
     ansible.builtin.command: "/tmp/neosec/installer install yum -username {{ neosec_user|quote }} -password {{ neosec_password|quote }} -source-id {{ neosec_source_id|quote }} -collector-name {{ neosec_collector_name|quote }}"
+
+  #Tokenization stage
+
+  - name: Create the Master key
+    ansible.builtin.command: "/usr/sbin/neosec-node-manager neotok create-enc-conf --gen-master-key --output ./enc.conf"
+    args:
+      chdir: /home/homoneyd/neosec
+
+  - name: Move master key
+    ansible.builtin.command: "mv /home/homoneyd/neosec/master.key /etc/neosec-node-manager/master.key"
+
+  - name: Change owner and permisions on master key
+    ansible.builtin.file:
+      path: /etc/neosec-node-manager/master.key
+      owner: neosec
+      group: logstash
+      mode: '0440'
+  
+  - name: Provision encryption conf
+    ansible.builtin.command: "/usr/sbin/neosec-node-manager neotok provision-enc-conf --api-key {{ neosec_password|quote }} --path /home/homoneyd/neosec/enc.conf"
+    args:
+      chdir: /home/homoneyd/neosec
+
+  - name: Verify Status of Node
+    ansible.builtin.command: "/usr/sbin/neosec-node-manager neotok status --api-key {{ neosec_password|quote }}"
+    register: statusoutput
+    
