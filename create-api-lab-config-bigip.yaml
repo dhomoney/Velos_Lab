@@ -23,8 +23,19 @@
         lb_method: round-robin
         name: vapi-pool
       delegate_to: localhost
-    
-    - name: Create crAPI pool
+
+    - name: Create VAmPI ssl pool
+      bigip_pool:
+        state: present
+        monitor_type: single
+        monitors:
+        - https
+        provider: "{{ provider }}"
+        lb_method: round-robin
+        name: vampi-ssl-pool
+      delegate_to: localhost
+
+    - name: Create VAmPI non-ssl pool
       bigip_pool:
         state: present
         monitor_type: single
@@ -32,9 +43,9 @@
         - http
         provider: "{{ provider }}"
         lb_method: round-robin
-        name: crapi-pool
+        name: vampi-pool
       delegate_to: localhost
-    
+
     - name: Create JuiceShop pool
       bigip_pool:
         state: present
@@ -82,14 +93,31 @@
           name: ubuntusrv03
       delegate_to: localhost
 
-    - name: Add members to crAPI pool
+    - name: Add members to VAmPI https pool
       bigip_pool_member:
         provider: "{{ provider }}"
         description: "webserver {{ item.name }}"
         host: "{{ item.host }}"
         name: "{{ item.name }}"
-        pool: crapi-pool
-        port: 8888
+        pool: vampi-ssl-pool
+        port: 5001
+      with_items:
+        - host: 10.56.20.10
+          name: ubuntusrv01
+        - host: 10.56.20.11
+          name: ubuntusrv02
+        - host: 10.56.20.12
+          name: ubuntusrv03
+      delegate_to: localhost
+
+    - name: Add members to VAmPI http pool
+      bigip_pool_member:
+        provider: "{{ provider }}"
+        description: "webserver {{ item.name }}"
+        host: "{{ item.host }}"
+        name: "{{ item.name }}"
+        pool: vampi-pool
+        port: 5002
       with_items:
         - host: 10.56.20.10
           name: ubuntusrv01
@@ -163,14 +191,31 @@
           - http
       delegate_to: localhost
 
-    - name: Create the crAPI VIP
+    - name: Create the VAmPI Secure VIP
+      bigip_virtual_server:
+        provider: "{{ provider }}"
+        description: VIP for crAPI
+        destination: 10.56.10.45
+        name: crapi-ssl-vip
+        pool: crapi-ssl-pool
+        port: 5001
+        snat: Automap
+        clone_pools:
+        - pool_name: traceable-tpa-pool
+          context: serverside         
+        profiles:
+          - mptcp-mobile-optimized
+          - http
+      delegate_to: localhost
+
+    - name: Create the VAmPI Insecure VIP
       bigip_virtual_server:
         provider: "{{ provider }}"
         description: VIP for crAPI
         destination: 10.56.10.45
         name: crapi-vip
         pool: crapi-pool
-        port: 8888
+        port: 5002
         snat: Automap
         clone_pools:
         - pool_name: traceable-tpa-pool

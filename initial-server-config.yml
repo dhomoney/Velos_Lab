@@ -98,7 +98,7 @@
       loop:
         - /home/homoneyd/Containers/juice-shop
         - /home/homoneyd/Containers/vapi
-        - /home/homoneyd/Containers/crAPI
+        - /home/homoneyd/Containers/vampi
 
     - name: Deploy OWASP Juice Shop Web app
       docker_container:
@@ -116,38 +116,11 @@
         ports:
           - "9080:80"
 
-    - name: Grabbing modified docker-compose file for crAPI
-      uri:
-        url: 'https://raw.githubusercontent.com/OWASP/crAPI/develop/deploy/docker/docker-compose.yml'
-        method: GET
-        dest: /home/homoneyd/Containers/crAPI/docker-compose.yml
-      register: result103
-
-#    - name: Copy updated docker compose file to proper folder
-#      copy:
-#        src: /home/david/Velos_Lab/Docker/crAPI/docker_compose.yml
-#        dest: /home/homoneyd/Containers/crAPI/docker-compose.yml
-#        owner: homoneyd
-#        group: docker        
-#        mode: 0774
-#      delegate_to: localhost
-
     - name: Clone a github repository
       ansible.builtin.git:
         repo: 'https://github.com/roottusk/vapi.git'
         dest: /home/homoneyd/Containers/vapi
         update: true
-
-    - name: Tear down existing services crAPI
-      community.docker.docker_compose:
-        project_src: /home/homoneyd/Containers/crAPI
-        state: absent
-
-    - name: Deploy crAPI using docker-compose
-      community.docker.docker_compose:
-        project_src: /home/homoneyd/Containers/crAPI
-        files:
-          - docker-compose.yml
 
     - name: Tear down existing services vAPI
       community.docker.docker_compose:
@@ -164,5 +137,17 @@
     - name: Deploy vAPI using docker-compose
       community.docker.docker_compose:
         project_src: /home/homoneyd/Containers/vapi
+        files:
+          - docker-compose.yml
+
+    - name: Clone vampi github
+      ansible.builtin.git:
+        repo: 'https://github.com/erev0s/VAmPI.git'
+        dest: /home/homoneyd/Containers/vampi
+        update: true
+
+    - name: Deploy vAPI using docker-compose
+      community.docker.docker_compose:
+        project_src: /home/homoneyd/Containers/vampi
         files:
           - docker-compose.yml
