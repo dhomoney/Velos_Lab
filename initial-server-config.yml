@@ -126,6 +126,7 @@
         repo: 'https://github.com/roottusk/vapi.git'
         dest: /home/homoneyd/Containers/vapi
         update: true
+        force: true
 
     - name: Grabbing modified docker-compose file for vAPI
       uri:
