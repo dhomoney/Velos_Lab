@@ -146,8 +146,8 @@
         dest: /home/homoneyd/Containers/vampi
         update: true
 
-    - name: Deploy vAPI using docker-compose
+    - name: Deploy VAmPI using docker-compose
       community.docker.docker_compose:
         project_src: /home/homoneyd/Containers/vampi
         files:
-          - docker-compose.yml
+          - docker-compose.yaml
