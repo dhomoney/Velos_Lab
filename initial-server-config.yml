@@ -116,16 +116,16 @@
         ports:
           - "9080:80"
 
-    - name: Clone a github repository
-      ansible.builtin.git:
-        repo: 'https://github.com/roottusk/vapi.git'
-        dest: /home/homoneyd/Containers/vapi
-        update: true
-
     - name: Tear down existing services vAPI
       community.docker.docker_compose:
         project_src: /home/homoneyd/Containers/vapi
         state: absent
+
+    - name: Clone vAPI github repository
+      ansible.builtin.git:
+        repo: 'https://github.com/roottusk/vapi.git'
+        dest: /home/homoneyd/Containers/vapi
+        update: true
 
     - name: Grabbing modified docker-compose file for vAPI
       uri:
