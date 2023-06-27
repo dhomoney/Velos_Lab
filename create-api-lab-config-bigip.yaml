@@ -13,6 +13,25 @@
 
   tasks:
 
+    - name: Create NeoSec Collector pool
+      bigip_pool:
+        state: present
+        monitor_type: single
+        monitors:
+        - tcp
+        provider: "{{ provider }}"
+        lb_method: round-robin
+        name: neosec-collector-pool
+      delegate_to: localhost
+
+    - name: Create NeoSec iRule
+      bigip_irule:
+        module: ltm
+        name: neosec-logger
+        src: files/neosec-logging.irule
+        provider: "{{ provider }}"
+      delegate_to: localhost
+
     - name: Create vAPI pool
       bigip_pool:
         state: present
@@ -74,6 +93,19 @@
         provider: "{{ provider }}"
         lb_method: round-robin
         name: traceable-tpa-pool
+      delegate_to: localhost
+
+    - name: Add members to NeoSec Collector pool
+      bigip_pool_member:
+        provider: "{{ provider }}"
+        description: "neosec-collector {{ item.name }}"
+        host: "{{ item.host }}"
+        name: "{{ item.name }}"
+        pool: neosec-collector-pool
+        port: 5044
+      with_items:
+        - host: 10.56.20.131
+          name: neosec01
       delegate_to: localhost
 
     - name: Add members to vAPI pool
@@ -189,6 +221,8 @@
         profiles:
           - mptcp-mobile-optimized
           - http
+        irules:
+          - neosec-logger
       delegate_to: localhost
 
     - name: Create the VAmPI Secure VIP
@@ -223,6 +257,8 @@
         profiles:
           - mptcp-mobile-optimized
           - http
+        irules:
+          - neosec-logger
       delegate_to: localhost
 
     - name: Create the Hackazon VIP
