@@ -1,0 +1,52 @@
+when RULE_INIT priority 900 {
+
+        # Neosec source version
+
+            set static::neosec_source_version "f5-irule:1.5.5"
+
+                # Log debug locally to /var/log/ltm? 1=yes, 0=no
+
+                    set static::neosec_hsl_debug 0
+
+                        # Pool name to post the API activity data to
+
+                            set static::neosec_hsl_pool "/Common/neosec-collector-pool"
+
+                                # Maximum payload size
+
+                                    set static::neosec_max_payload 10240
+
+                                    }
+
+
+
+                                    when CLIENT_ACCEPTED priority 900 {
+
+                                        set requestTime [clock clicks -milliseconds]
+
+                                            if { [PROFILE::exists clientssl] == 1 } { 
+
+                                                    set requestScheme "https" 
+
+                                                        } else {
+
+                                                                set requestScheme "http"
+
+                                                                    }
+
+                                                                        if {[active_members $static::neosec_hsl_pool]==0} {
+
+                                                                                log local0. "[IP::client_addr]:[TCP::client_port]: [virtual name] $static::neosec_hsl_pool down, not logging"
+
+                                                                                        set bypass 1
+
+                                                                                            } else {
+
+                                                                                                    set bypass 0
+
+                                                                                                            # Open a new HSL connection if one is not available
+
+                                                                                                                    set hsl [HSL::open -proto TCP -pool $static::neosec_hsl_pool]
+
+                                                                                                                            if {$static::neosec_hsl_debug} {log local0. "[IP::client_addr]:[TCP::client_por
+}
